@@ -43,26 +43,10 @@ jobs:
         find _site -type f -name "*.css" -exec chmod 644 {} \;
         find _site -type f -name "*.js" -exec chmod 644 {} \;
 
-    - name: Package Pages artifact
-      run: |
-        # Create a Pages-compatible artifact: one gzip containing one tar file.
-        tar \
-          --dereference --hard-dereference \
-          --directory "_site" \
-          -cvf "$RUNNER_TEMP/artifact.tar" \
-          --exclude=.git \
-          --exclude=.github \
-          --exclude=".[^/]*" \
-          .
-        gzip -9 "$RUNNER_TEMP/artifact.tar"
-
     - name: Upload artifact
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-pages-artifact@v4
       with:
-        name: github-pages
-        path: ${{ runner.temp }}/artifact.tar.gz
-        retention-days: 1
-        if-no-files-found: error
+        path: _site
 
   deploy:
     environment:
