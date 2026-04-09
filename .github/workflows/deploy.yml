@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v5
 
     - name: Setup Pages
-      uses: actions/configure-pages@v5
+      uses: actions/configure-pages@v6
 
     - name: Build static site
       run: |
@@ -39,8 +39,26 @@ jobs:
         find _site -type f -name "*.css" -exec chmod 644 {} \;
         find _site -type f -name "*.js" -exec chmod 644 {} \;
 
+    - name: Package Pages artifact
+      run: |
+        # Create a Pages-compatible artifact: one gzip containing one tar file.
+        tar \
+          --dereference --hard-dereference \
+          --directory "_site" \
+          -cvf "$RUNNER_TEMP/artifact.tar" \
+          --exclude=.git \
+          --exclude=.github \
+          --exclude=".[^/]*" \
+          .
+        gzip -9 "$RUNNER_TEMP/artifact.tar"
+
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v4
+      uses: actions/upload-artifact@v6
+      with:
+        name: github-pages
+        path: ${{ runner.temp }}/artifact.tar.gz
+        retention-days: 1
+        if-no-files-found: error
 
   deploy:
     environment:
@@ -51,4 +69,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
