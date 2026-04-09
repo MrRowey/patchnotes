@@ -16,6 +16,10 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  # Some upstream GitHub Actions dependencies still emit DEP0040 under Node 24.
+  NODE_OPTIONS: --disable-warning=DEP0040
+
 jobs:
   build:
     runs-on: ubuntu-latest
