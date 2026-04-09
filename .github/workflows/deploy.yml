@@ -22,10 +22,10 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Pages
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v5
 
     - name: Build static site
       run: |
@@ -40,7 +40,7 @@ jobs:
         find _site -type f -name "*.js" -exec chmod 644 {} \;
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v4
 
   deploy:
     environment:
