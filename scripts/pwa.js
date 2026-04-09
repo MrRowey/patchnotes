@@ -1,5 +1,5 @@
 // PWA Installation and Management
-// Version 2.3.0 - Enhanced with better notifications and cache management
+// Version 2.3.1 - Enhanced with better notifications and cache management
 class PWAManager {
   constructor() {
     this.deferredPrompt = null;
@@ -46,6 +46,7 @@ class PWAManager {
         registration.addEventListener('updatefound', () => {
           this.logger.info?.('New version available');
           const newWorker = registration.installing;
+          if (!newWorker) return;
           
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
@@ -57,6 +58,15 @@ class PWAManager {
         
         // Store registration for later use
         this.registration = registration;
+      } catch (error) {
+        this.logger.error?.('Service Worker registration failed', error);
+      }
+    }
+  }
+
+  setupInstallPrompt() {
+    // Listen for install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
       this.logger.info?.('Install prompt available');
       e.preventDefault();
       this.deferredPrompt = e;
@@ -65,17 +75,7 @@ class PWAManager {
 
     // Listen for successful install
     window.addEventListener('appinstalled', () => {
-      this.logger.info?.('l prompt
-    window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('PWA: Install prompt available');
-      e.preventDefault();
-      this.deferredPrompt = e;
-      this.showInstallPrompt();
-    });
-
-    // Listen for successful install
-    window.addEventListener('appinstalled', () => {
-      console.log('PWA: Successfully installed');
+      this.logger.info?.('Successfully installed');
       this.isInstalled = true;
       this.hideInstallPrompt();
       this.showInstallSuccess();

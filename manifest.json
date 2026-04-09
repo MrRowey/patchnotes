@@ -2,7 +2,7 @@
   "name": "FAForever Patchnotes",
   "short_name": "FA Patches",
   "description": "Browse and access the latest FAForever balance and game patch notes",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#222831",
@@ -67,7 +67,7 @@
       "name": "Latest Patch",
       "short_name": "Latest",
       "description": "View the most recent balance patch",
-      "url": "/pages/2025/3825.html",
+      "url": "/pages/2026/3830.html",
       "icons": [{ "src": "./assets/images/icons/icon-96x96.svg", "sizes": "96x96" }]
     },
     {

@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/404.html',
+  '/manifest.json',
   '/scripts/logger.js',
   '/scripts/populatePatches.js',
   '/scripts/search.js',
@@ -29,6 +30,8 @@ const STATIC_ASSETS = [
   '/assets/images/faction/Cybran.svg',
   '/assets/images/faction/Aeon.svg',
   '/assets/images/faction/Seraphim.svg',
+  '/assets/images/icons/icon-72x72.svg',
+  '/assets/images/icons/icon-192x192.svg',
   '/assets/data/patches.json',
   '/favicon.ico'
 ];
@@ -238,15 +241,15 @@ self.addEventListener('push', event => {
     
     const options = {
       body: data.body || 'New FAForever patch available!',
-      icon: '/assets/images/icons/icon-192x192.png',
-      badge: '/assets/images/icons/icon-72x72.png',
+      icon: '/assets/images/icons/icon-192x192.svg',
+      badge: '/assets/images/icons/icon-72x72.svg',
       tag: 'patch-notification',
       data: data.url || '/',
       actions: [
         {
           action: 'view',
           title: 'View Patch',
-          icon: '/assets/images/icons/icon-72x72.png'
+          icon: '/assets/images/icons/icon-72x72.svg'
         },
         {
           action: 'dismiss',
