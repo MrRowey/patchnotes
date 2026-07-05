@@ -37,16 +37,36 @@ import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import yaml
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    TemplateNotFound,
+    UndefinedError,
+    select_autoescape,
+)
 
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
     format="%(levelname)s: %(message)s",
 )
 log = logging.getLogger("generate_patch")
+
+# Font Awesome icon used per faction in the sidebar nav (`section.icon`).
+# Adjust freely — these are just sensible defaults matching the site's
+# existing faction theme buttons (aeon/uef/cybran/sera).
+FACTION_ICONS: dict[str, str] = {
+    "uef": "fa-shield-alt",
+    "cybran": "fa-microchip",
+    "aeon": "fa-circle-notch",
+    "seraphim": "fa-sun",
+    "sera": "fa-sun",
+}
+DEFAULT_FACTION_ICON = "fa-star"
 
 
 class PatchGenerationError(Exception):
@@ -138,6 +158,101 @@ def slugify(value: str) -> str:
     return re.sub(r"[-\s]+", "-", value) or "patch"
 
 
+def _to_namespace(obj: Any) -> Any:
+    """
+    Recursively convert dicts/lists into SimpleNamespace objects so Jinja's
+    `foo.bar` attribute access is safe to use everywhere in the template.
+
+    This matters because templates/patch.html uses `section.items` — but a
+    plain dict already has a built-in `.items()` method, and Jinja's
+    attribute lookup (`getattr` first, `__getitem__` fallback) finds that
+    method before it ever tries the dict key, causing a
+    "'builtin_function_or_method' object is not iterable" error. Using
+    SimpleNamespace instead of dict sidesteps the collision entirely.
+    """
+    if isinstance(obj, dict):
+        return SimpleNamespace(**{k: _to_namespace(v) for k, v in obj.items()})
+    if isinstance(obj, list):
+        return [_to_namespace(v) for v in obj]
+    return obj
+
+
+def build_sections(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Reshape the flat list of unit-change entries from the YAML block into
+    the nested structure templates/patch.html expects:
+
+        sections: [
+          { id, title, icon, items: [
+              { id, icon_url, name, change_type, faction, unit_code,
+                description, change_groups: [
+                    { title_title, changes: [
+                        { change_type, label, old, new }, ...
+                    ] }, ...
+                ] }, ...
+          ] }, ...
+        ]
+
+    Design decisions (adjust here if the site's grouping should differ):
+      - Units are grouped into one section per faction, matching the
+        sidebar's per-faction nav blocks and faction badge icons.
+      - Each unit's flat `changes` list (category/label/old/new) is
+        regrouped into `change_groups`, one group per distinct `category`,
+        preserving first-seen order — this drives the "ChangeGroupTitle"
+        (Intel, Mobility, etc.) headers in each unit card.
+      - Per-line `change_type` (used for the <li> CSS class) inherits the
+        unit's overall change_type (buff/nerf/adjustment), since the YAML
+        schema doesn't currently carry a distinct type per stat line.
+    """
+    sections_by_faction: dict[str, dict[str, Any]] = {}
+
+    for unit in units:
+        faction = unit.get("faction") or "Unknown"
+        faction_slug = slugify(faction)
+        unit_code = unit.get("unit_code", "")
+        change_type = unit.get("change_type", "")
+
+        section = sections_by_faction.setdefault(
+            faction_slug,
+            {
+                "id": faction_slug,
+                "title": faction,
+                "icon": FACTION_ICONS.get(faction_slug, DEFAULT_FACTION_ICON),
+                "items": [],
+            },
+        )
+
+        groups_by_category: dict[str, dict[str, Any]] = {}
+        for change in unit.get("changes", []):
+            category = change.get("category") or "General"
+            group = groups_by_category.setdefault(
+                category, {"title_title": category, "changes": []}
+            )
+            group["changes"].append(
+                {
+                    "change_type": change_type,
+                    "label": change.get("label", ""),
+                    "old": change.get("old", ""),
+                    "new": change.get("new", ""),
+                }
+            )
+
+        section["items"].append(
+            {
+                "id": unit_code or slugify(unit.get("unit_name", "unit")),
+                "icon_url": f"/assets/images/units/{faction_slug}/{unit_code}_icon.png",
+                "name": unit.get("unit_name", ""),
+                "change_type": change_type,
+                "faction": faction,
+                "unit_code": unit_code,
+                "description": unit.get("description", ""),
+                "change_groups": list(groups_by_category.values()),
+            }
+        )
+
+    return list(sections_by_faction.values())
+
+
 # --------------------------------------------------------------------------- #
 # Data model
 # --------------------------------------------------------------------------- #
@@ -177,7 +292,20 @@ class PatchNote:
 # Core generation logic
 # --------------------------------------------------------------------------- #
 
+def sanitize_issue_body(issue_body: str) -> str:
+    """
+    Clean characters that come from copy-pasting into the GitHub issue form
+    but silently break downstream parsing:
+      - U+00A0 (non-breaking space) -> regular space. PyYAML treats \\xa0
+        as a non-whitespace character, so indentation-sensitive YAML blocks
+        break in confusing ways if one sneaks in.
+    """
+    return issue_body.replace("\xa0", " ")
+
+
 def parse_issue_body(issue_body: str) -> tuple[str, str, list[dict[str, Any]]]:
+    issue_body = sanitize_issue_body(issue_body)
+
     version = extract_section("Patch Version", issue_body).strip()
     summary = extract_section("Patch Summary", issue_body).strip()
     # Matches "### Unit Changes" and "### Unit Changes (YAML)" alike.
@@ -198,21 +326,43 @@ def render_patch_html(patch: PatchNote, template_dir: Path, template_name: str) 
         autoescape=select_autoescape(["html", "xml"]),
         trim_blocks=True,
         lstrip_blocks=True,
+        # StrictUndefined makes an unknown/misspelled template variable raise
+        # immediately, instead of Jinja's default of silently rendering "" —
+        # which is exactly how a render()/template mismatch went unnoticed
+        # before.
+        undefined=StrictUndefined,
     )
     try:
         template = env.get_template(template_name)
     except TemplateNotFound as exc:
         raise PatchGenerationError(f"Template '{template_name}' not found in {template_dir}") from exc
 
-    return template.render(
-        version=patch.version,
-        summary=patch.summary,
-        units=patch.units,
-        date=patch.date,
-        issue_number=patch.issue_number,
-        issue_url=patch.issue_url,
-        author=patch.author,
-    )
+    sections = [_to_namespace(section) for section in build_sections(patch.units)]
+    total_changes_count = sum(len(unit.get("changes", [])) for unit in patch.units)
+
+    try:
+        release_date_formatted = datetime.strptime(patch.date, "%Y-%m-%d").strftime("%B %-d, %Y")
+    except ValueError:
+        release_date_formatted = patch.date
+
+    # NOTE: these keyword names must match the variable names used in
+    # templates/patch.html exactly: patch_number, description, release_date,
+    # release_date_formatted, sections (-> items -> change_groups -> changes),
+    # total_changes_count. The template doesn't reference issue metadata or
+    # author, so those aren't passed here (they still live in the JSON feed).
+    try:
+        return template.render(
+            patch_number=patch.version,
+            description=patch.summary,
+            release_date=patch.date,
+            release_date_formatted=release_date_formatted,
+            sections=sections,
+            total_changes_count=total_changes_count,
+        )
+    except UndefinedError as exc:
+        raise PatchGenerationError(
+            f"Template '{template_name}' references a variable that render() doesn't provide: {exc}"
+        ) from exc
 
 
 def atomic_write(path: Path, content: str) -> None:
