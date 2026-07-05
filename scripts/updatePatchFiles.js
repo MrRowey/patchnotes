@@ -18,7 +18,7 @@ const NEW_HEAD_TEMPLATE = `<head>
     <link rel="stylesheet" href="/style/critical.css" />
 
     <!-- Load head configuration and shared resources -->
-    <script src="/scripts/headConfigg.js"></script>
+    <script src="/scripts/headConfig.js"></script>
 </head>`;
 
 function updatePatchFile(filePath) {

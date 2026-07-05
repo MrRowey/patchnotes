@@ -16,7 +16,7 @@
           category: 'Navigation',
           items: [
             { keys: ['Ctrl', 'K'], mac: ['⌘', 'K'], description: 'Focus search' },
-            { keys: ['Esc'], description: 'Clear search / Close dialogs' },
+            { keys: ['Esc'], description: 'Clear search / Close dialog' },
             { keys: ['Home'], description: 'Scroll to top' },
             { keys: ['End'], description: 'Scroll to bottom' }
           ]
