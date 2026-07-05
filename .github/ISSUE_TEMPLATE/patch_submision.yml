@@ -40,10 +40,7 @@ body:
               label: Radar Radius
               old: 24
               new: 20
-             - category: Intel
-              label: Sonar Radius
-              old: 24
-              new: 20
+              change_type: Buff
         ```
     validations:
       required: true

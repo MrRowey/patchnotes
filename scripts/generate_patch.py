@@ -200,9 +200,25 @@ def build_sections(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
         regrouped into `change_groups`, one group per distinct `category`,
         preserving first-seen order — this drives the "ChangeGroupTitle"
         (Intel, Mobility, etc.) headers in each unit card.
-      - Per-line `change_type` (used for the <li> CSS class) inherits the
-        unit's overall change_type (buff/nerf/adjustment), since the YAML
-        schema doesn't currently carry a distinct type per stat line.
+      - Per-line `change_type` (used for the <li> CSS class, e.g. buff/
+        nerf coloring) defaults to the unit's overall change_type, but can
+        be overridden on an individual change entry — e.g. a unit that's
+        an overall buff can still include one nerfed stat:
+
+            - unit_code: URL0306
+              change_type: buff       # overall badge on the unit card
+              unit_name: Deceiver
+              faction: Cybran
+              changes:
+                - category: Intel
+                  label: Radar Radius
+                  old: 20
+                  new: 24              # inherits "buff" (no override)
+                - category: Survivability
+                  label: Max Health
+                  old: 350
+                  new: 300
+                  change_type: nerf    # overridden per-line
     """
     sections_by_faction: dict[str, dict[str, Any]] = {}
 
@@ -210,7 +226,7 @@ def build_sections(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
         faction = unit.get("faction") or "Unknown"
         faction_slug = slugify(faction)
         unit_code = unit.get("unit_code", "")
-        change_type = unit.get("change_type", "")
+        unit_change_type = unit.get("change_type", "")
 
         section = sections_by_faction.setdefault(
             faction_slug,
@@ -228,9 +244,12 @@ def build_sections(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
             group = groups_by_category.setdefault(
                 category, {"title_title": category, "changes": []}
             )
+            # Per-line override wins if present; otherwise inherit the
+            # unit's overall change_type.
+            line_change_type = change.get("change_type") or unit_change_type
             group["changes"].append(
                 {
-                    "change_type": change_type,
+                    "change_type": line_change_type,
                     "label": change.get("label", ""),
                     "old": change.get("old", ""),
                     "new": change.get("new", ""),
@@ -242,7 +261,7 @@ def build_sections(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "id": unit_code or slugify(unit.get("unit_name", "unit")),
                 "icon_url": f"/assets/images/units/{faction_slug}/{unit_code}_icon.png",
                 "name": unit.get("unit_name", ""),
-                "change_type": change_type,
+                "change_type": unit_change_type,
                 "faction": faction,
                 "unit_code": unit_code,
                 "description": unit.get("description", ""),
