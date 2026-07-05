@@ -13,9 +13,12 @@ changes), renders a Jinja2 HTML template, writes the resulting page into
 Usage (CI):
     ISSUE_BODY="$ISSUE_BODY" \
     ISSUE_NUMBER="$ISSUE_NUMBER" \
-    ISSUE_URL="$ISSUE_URL" \
     ISSUE_AUTHOR="$ISSUE_AUTHOR" \
+    GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
     python scripts/generate_patch.py
+
+    (ISSUE_URL is optional — if omitted, it's built automatically from
+    GITHUB_REPOSITORY + ISSUE_NUMBER.)
 
 Usage (local test):
     python scripts/generate_patch.py --issue-body-file sample_issue.md
@@ -58,13 +61,20 @@ def extract_section(section_name: str, markdown_text: str) -> str:
     """
     Extract the body text under a `### <section_name>` GitHub Issue Form
     heading, stopping at the next `###` heading or end of string.
+
+    Matching is case-insensitive and tolerant of trailing whitespace or a
+    parenthetical suffix on the heading, e.g. section_name="Unit Changes"
+    will match both "### Unit Changes" and "### Unit Changes (YAML)" —
+    GitHub Issue Forms sometimes render section headings slightly
+    differently depending on how the form field was configured.
     """
     pattern = (
-        rf"###\s+{re.escape(section_name)}\s*\r?\n"  # the heading line
-        rf"(.*?)"                                     # body (non-greedy)
-        rf"(?=\r?\n###\s|\Z)"                          # next heading or EOF
+        rf"###[ \t]+{re.escape(section_name)}"        # the heading text
+        rf"[ \t]*(?:\(.*?\))?[ \t]*\r?\n"              # optional "(...)" suffix + EOL
+        rf"(.*?)"                                       # body (non-greedy)
+        rf"(?=\r?\n###[ \t]|\Z)"                         # next heading or EOF
     )
-    match = re.search(pattern, markdown_text, re.DOTALL)
+    match = re.search(pattern, markdown_text, re.DOTALL | re.IGNORECASE)
     return match.group(1).strip() if match else ""
 
 
@@ -170,7 +180,8 @@ class PatchNote:
 def parse_issue_body(issue_body: str) -> tuple[str, str, list[dict[str, Any]]]:
     version = extract_section("Patch Version", issue_body).strip()
     summary = extract_section("Patch Summary", issue_body).strip()
-    raw_units_section = extract_section("Unit Changes (YAML)", issue_body)
+    # Matches "### Unit Changes" and "### Unit Changes (YAML)" alike.
+    raw_units_section = extract_section("Unit Changes", issue_body)
 
     if not version:
         raise PatchGenerationError("Issue body is missing a 'Patch Version' section.")
@@ -311,6 +322,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def resolve_issue_url(issue_number: str | None) -> str | None:
+    """
+    Prefer an explicit $ISSUE_URL if the workflow provides one. Otherwise,
+    build it from $GITHUB_REPOSITORY (auto-set by GitHub Actions, e.g.
+    "MrRowey/patchnotes") + the issue number.
+    """
+    explicit = os.environ.get("ISSUE_URL")
+    if explicit:
+        return explicit
+
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if repo and issue_number:
+        return f"https://github.com/{repo}/issues/{issue_number}"
+
+    return None
+
+
 def main() -> int:
     args = parse_args()
 
@@ -324,14 +352,16 @@ def main() -> int:
         write_step_summary("No issue body was provided.", is_error=True)
         return 1
 
+    issue_number = os.environ.get("ISSUE_NUMBER")
+
     try:
         patch = generate_patch(
             issue_body=issue_body,
             template_path=args.template,
             patches_dir=args.patches_dir,
             feed_filename=args.feed_filename,
-            issue_number=os.environ.get("ISSUE_NUMBER"),
-            issue_url=os.environ.get("ISSUE_URL"),
+            issue_number=issue_number,
+            issue_url=resolve_issue_url(issue_number),
             author=os.environ.get("ISSUE_AUTHOR"),
         )
     except PatchGenerationError as exc:
