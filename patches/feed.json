@@ -1,0 +1,15 @@
+{
+  "patches": [
+    {
+      "version": "3999",
+      "summary": "This is a Test Patchnotes",
+      "date": "2026-07-05",
+      "url": "patches/patch-3999.html",
+      "issue_number": "1",
+      "issue_url": "https://github.com/MrRowey/patchnotes/issues/1",
+      "author": "MrRowey",
+      "unit_count": 1
+    }
+  ],
+  "updated_at": "2026-07-05T23:14:20.443423+00:00"
+}
