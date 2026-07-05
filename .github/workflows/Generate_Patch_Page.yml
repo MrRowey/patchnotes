@@ -1,0 +1,41 @@
+name: Generate Patch Notes
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  generate:
+    # Only run for issues created from the "Patch Submission" form
+    # (that form should apply a "patch-submission" label automatically).
+    if: contains(github.event.issue.labels.*.name, 'patch-submission')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install jinja2 pyyaml
+
+      - name: Generate patch page
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: python scripts/generate_patch.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name "faf-patch-bot"
+          git config user.email "actions@github.com"
+          git add patches/
+          git diff --cached --quiet || git commit -m "Add patch notes for issue #${{ github.event.issue.number }}"
+          git push
