@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patch Builder - FAForever</title>
     
-    <!-- Load ONLY the dedicated builder styles to prevent critical.css from hiding the page -->
     <link rel="stylesheet" href="style/builder.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -36,22 +35,19 @@
                     <textarea id="patchSummary" placeholder="Briefly describe the overall goals of this patch..." required></textarea>
                 </div>
 
-                <!-- DYNAMIC UNITS UI -->
                 <div class="DynamicSection">
                     <label style="color: #38bdf8; font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; display: block;">
                         <i class="fas fa-robot"></i> Unit Changes
                     </label>
                     
                     <div id="unitsContainer">
-                        <!-- Unit Cards will be injected here -->
-                    </div>
+                        </div>
 
                     <button type="button" class="ActionBtn" id="addUnitBtn">
                         <i class="fas fa-plus"></i> Add Unit
                     </button>
                 </div>
 
-                <!-- READ-ONLY YAML PREVIEW -->
                 <div class="FormGroup GeneratedYamlContainer">
                     <label><i class="fas fa-code"></i> Generated YAML (Preview)</label>
                     <p class="YamlHelper">This code is generated automatically from your form inputs above.</p>
@@ -162,12 +158,14 @@
             row.id = rowId;
 
             let catOptions = Object.keys(CATEGORIES).map(c => `<option value="${c}">${c}</option>`).join('');
+            let typeOptions = CHANGE_TYPES.map(t => `<option value="${t.toLowerCase()}">${t}</option>`).join('');
 
             row.innerHTML = `
                 <select class="c-cat" onchange="updateLabels('${rowId}')">${catOptions}</select>
                 <select class="c-label"></select>
                 <input type="text" class="c-old" placeholder="Old Val" required>
                 <input type="text" class="c-new" placeholder="New Val" required>
+                <select class="c-type" title="Stat Change Type">${typeOptions}</select>
                 <button type="button" class="RemoveBtn" onclick="removeElement('${rowId}')" title="Remove Stat"><i class="fas fa-times"></i></button>
             `;
 
@@ -222,11 +220,13 @@
                     const label = row.querySelector('.c-label').value;
                     const oldVal = row.querySelector('.c-old').value.trim() || "-";
                     const newVal = row.querySelector('.c-new').value.trim() || "-";
+                    const statType = row.querySelector('.c-type').value;
 
                     yamlString += `    - category: ${cat}\n`;
                     yamlString += `      label: ${label}\n`;
                     yamlString += `      old: ${oldVal}\n`;
                     yamlString += `      new: ${newVal}\n`;
+                    yamlString += `      change_type: ${statType}\n`;
                 });
             });
 

@@ -194,7 +194,8 @@ body.builder-body {
 }
 .ChangeRow {
     display: grid;
-    grid-template-columns: 2fr 2fr 1fr 1fr auto;
+    /* Added an extra column for the specific stat change type dropdown */
+    grid-template-columns: 2fr 2fr 1fr 1fr 1.5fr auto;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
     align-items: center;
