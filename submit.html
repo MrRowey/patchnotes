@@ -19,9 +19,16 @@
             </div>
 
             <form id="patchForm">
-                <div class="FormGroup">
-                    <label for="patchVersion"><i class="fas fa-tag"></i> Patch Version</label>
-                    <input type="text" id="patchVersion" placeholder="e.g., 3835" required>
+                <div class="Grid2Col">
+                    <div class="FormGroup">
+                        <label for="patchVersion"><i class="fas fa-tag"></i> Patch Version</label>
+                        <input type="text" id="patchVersion" placeholder="e.g., 3835" required>
+                    </div>
+
+                    <div class="FormGroup">
+                        <label for="patchDate"><i class="fas fa-calendar-alt"></i> Patch Date</label>
+                        <input type="date" id="patchDate" required>
+                    </div>
                 </div>
 
                 <div class="FormGroup">
@@ -80,6 +87,7 @@
         const unitsContainer = document.getElementById('unitsContainer');
         const addUnitBtn = document.getElementById('addUnitBtn');
         const yamlOutput = document.getElementById('yamlData');
+        const patchDateInput = document.getElementById('patchDate');
 
         // Events
         addUnitBtn.addEventListener('click', createUnitCard);
@@ -225,8 +233,9 @@
             yamlOutput.value = yamlString;
         }
 
-        // Initialize with one empty unit to start
+        // Initialize with one empty unit to start, and set date to today
         document.addEventListener('DOMContentLoaded', () => {
+            patchDateInput.valueAsDate = new Date();
             createUnitCard();
         });
 
@@ -235,6 +244,7 @@
             e.preventDefault();
             
             const version = document.getElementById('patchVersion').value.trim();
+            const date = patchDateInput.value;
             const summary = document.getElementById('patchSummary').value.trim();
             const yaml = yamlOutput.value.trim();
             
@@ -250,6 +260,7 @@
                 template: 'patch_submission.yml',
                 title: `[Patch] Balance Changes: v${version}`,
                 patch_version: version,
+                patch_date: date,           // Passes the selected date mapping
                 patch_summary: summary,
                 unit_changes: yaml
             });

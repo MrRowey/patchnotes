@@ -11,6 +11,14 @@ body:
     validations:
       required: true
       
+  - type: input
+    id: patch_date
+    attributes:
+      label: Patch Date
+      description: Date this patch went live (YYYY-MM-DD)
+    validations:
+      required: true
+      
   - type: textarea
     id: patch_summary
     attributes:

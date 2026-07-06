@@ -148,103 +148,109 @@ body.builder-body {
     margin-bottom: 0.25rem;
 }
 
- .DynamicSection {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .UnitCard {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-        .UnitCardHeader {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
-        }
-        .UnitCardHeader h3 {
-            margin: 0;
-            color: #f8fafc;
-            font-size: 1.1rem;
-        }
-        .RemoveBtn {
-            background: rgba(244, 63, 94, 0.2);
-            color: #f43f5e;
-            border: 1px solid #f43f5e;
-            border-radius: 4px;
-            padding: 0.3rem 0.6rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .RemoveBtn:hover {
-            background: #f43f5e;
-            color: white;
-        }
-        .Grid2Col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        .ChangeRow {
-            display: grid;
-            grid-template-columns: 2fr 2fr 1fr 1fr auto;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            align-items: center;
-        }
-        select {
-            background: rgba(15, 23, 42, 0.8) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            color: #f8fafc !important;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            width: 100%;
-        }
-        select:focus {
-            outline: none;
-            border-color: rgba(56, 189, 248, 0.8) !important;
-        }
-        .ActionBtn {
-            background: rgba(56, 189, 248, 0.1);
-            color: #38bdf8;
-            border: 1px dashed #38bdf8;
-            padding: 0.75rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.2s;
-        }
-        .ActionBtn:hover {
-            background: rgba(56, 189, 248, 0.2);
-        }
-        .ChangesWrapper {
-            margin-top: 1.5rem;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            border-radius: 6px;
-        }
-        .ChangesHeader {
-            font-size: 0.9rem;
-            color: #94a3b8;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .GeneratedYamlContainer {
-            margin-top: 2rem;
-            opacity: 0.8;
-        }
-        .GeneratedYamlContainer textarea {
-            background: #000 !important;
-            cursor: not-allowed;
-        }
+.DynamicSection {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.UnitCard {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+.UnitCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+.UnitCardHeader h3 {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 1.1rem;
+}
+.RemoveBtn {
+    background: rgba(244, 63, 94, 0.2);
+    color: #f43f5e;
+    border: 1px solid #f43f5e;
+    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.RemoveBtn:hover {
+    background: #f43f5e;
+    color: white;
+}
+.Grid2Col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.ChangeRow {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr auto;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+select, input[type="date"] {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #f8fafc !important;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+select:focus, input[type="date"]:focus {
+    outline: none;
+    border-color: rgba(56, 189, 248, 0.8) !important;
+}
+/* Custom date picker icon color for dark mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+.ActionBtn {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border: 1px dashed #38bdf8;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.2s;
+}
+.ActionBtn:hover {
+    background: rgba(56, 189, 248, 0.2);
+}
+.ChangesWrapper {
+    margin-top: 1.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 6px;
+}
+.ChangesHeader {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.GeneratedYamlContainer {
+    margin-top: 2rem;
+    opacity: 0.8;
+}
+.GeneratedYamlContainer textarea {
+    background: #000 !important;
+    cursor: not-allowed;
+}
