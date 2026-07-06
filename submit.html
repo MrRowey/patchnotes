@@ -6,12 +6,12 @@
     <title>Patch Builder - FAForever</title>
     
     <!-- External Stylesheets -->
-    <link rel="stylesheet" href="style/critical.css">
+    <link rel="stylesheet" href="style/critical.css?v=1724259600">
     <link rel="stylesheet" href="style/builder.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <main class="GridContainer">
+<body class="builder-body">
+    <main class="BuilderWrapper">
         <div class="FormContainer">
             <div class="FormHeader">
                 <h2><i class="fas fa-hammer"></i> Patch Note Builder</h2>
@@ -64,7 +64,6 @@
             const repoName = "patchnotes";
             
             // 2. Map the data directly to the IDs in your GitHub Issue Form
-            // This safely encodes all spaces, line breaks, and special characters!
             const params = new URLSearchParams({
                 template: 'patch_submission.yml',
                 title: `[Patch] Balance Changes: v${version}`,
