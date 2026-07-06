@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patch Builder - FAForever</title>
     
+    <!-- Load ONLY the dedicated builder styles to prevent critical.css from hiding the page -->
     <link rel="stylesheet" href="style/builder.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
 </head>
 <body class="builder-body">
     <main class="BuilderWrapper">
@@ -41,7 +41,8 @@
                     </label>
                     
                     <div id="unitsContainer">
-                        </div>
+                        <!-- Unit Cards will be injected here -->
+                    </div>
 
                     <button type="button" class="ActionBtn" id="addUnitBtn">
                         <i class="fas fa-plus"></i> Add Unit
@@ -49,8 +50,15 @@
                 </div>
 
                 <div class="FormGroup GeneratedYamlContainer">
-                    <label><i class="fas fa-code"></i> Generated YAML (Preview)</label>
-                    <p class="YamlHelper">This code is generated automatically from your form inputs above.</p>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                        <div>
+                            <label><i class="fas fa-code"></i> Generated YAML (Preview)</label>
+                            <p class="YamlHelper">This code is generated automatically from your form inputs above.</p>
+                        </div>
+                        <button type="button" id="copyYamlBtn" class="CopyBtn">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
                     <textarea id="yamlData" class="CodeEditor" readonly></textarea>
                 </div>
 
@@ -62,16 +70,16 @@
     </main>
 
     <script>
-        // Data Dictionary for Dropdowns
+        // Data Dictionary for Dropdowns (Includes your newly added stats!)
         const CATEGORIES = {
             "Defence": ["Health/MaxHealth", "ShieldRegenAssistMult", "ShieldEnergyDrainRechargeTime", "ShieldMaxHealth", "ShieldRechargeTime", "ShieldRegenRate", "ShieldRegenStartTime", "ShieldSize", "ShieldSpillOverDamageMod", "RegenRate", "PowerDrain"],
             "Display": ["UniformScale"],
             "Economy": ["BuildCostEnergy", "BuildCostMass", "BuildTime", "MaintenanceConsumptionPerSecondEnergy", "BuildRate", "MaxBuildDistance", "ProductionPerSecondEnergy", "ProductionPerSecondMass", "StorageEnergy", "StorageMass"],
             "General": ["TeleportDelay", "TeleportFlatEnergyCost"],
             "Intel": ["FreeIntel", "OmniRadius", "VisionRadius", "WaterVisionRadius", "SonarRadius"],
-            "Physics": ["TransportClass","BackUpDistance", "DragCoefficient", "MaxAcceleration", "MaxBrake", "MaxSpeed", "MaxSpeedReverse", "MaxSteerForce", "RotateOnSpot", "RotateOnSpotThreshold", "TurnRadius", "TurnRate"],
+            "Physics": ["TransportClass", "BackUpDistance", "DragCoefficient", "MaxAcceleration", "MaxBrake", "MaxSpeed", "MaxSpeedReverse", "MaxSteerForce", "RotateOnSpot", "RotateOnSpotThreshold", "TurnRadius", "TurnRate"],
             "UnitScale": ["SizeX", "SizeY", "SizeZ"],
-            "Weapons": ["Damage", "MaxRadius", "Min Radius", "MuzzleSalvoDelay", "MuzzleSalvoSize", "MuzzleVelocity", "RateOfFire", "DamageRadius", "FiringRandomnessWhileMoving", "DPS","TurretYawSpeed","FiringTolerance"]
+            "Weapons": ["Damage", "MaxRadius", "Min Radius", "MuzzleSalvoDelay", "MuzzleSalvoSize", "MuzzleVelocity", "RateOfFire", "DamageRadius", "FiringRandomnessWhileMoving", "DPS", "TurretYawSpeed", "FiringTolerance"]
         };
 
         const FACTIONS = ["UEF", "Aeon", "Cybran", "Seraphim"];
@@ -84,10 +92,29 @@
         const addUnitBtn = document.getElementById('addUnitBtn');
         const yamlOutput = document.getElementById('yamlData');
         const patchDateInput = document.getElementById('patchDate');
+        const copyYamlBtn = document.getElementById('copyYamlBtn');
 
         // Events
         addUnitBtn.addEventListener('click', createUnitCard);
         document.getElementById('patchForm').addEventListener('input', generateYAML); // Live update YAML
+
+        // Copy to Clipboard Logic
+        copyYamlBtn.addEventListener('click', () => {
+            if (!yamlOutput.value) return;
+            
+            yamlOutput.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const originalHTML = copyYamlBtn.innerHTML;
+            copyYamlBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            copyYamlBtn.classList.add('copied');
+            
+            setTimeout(() => {
+                copyYamlBtn.innerHTML = originalHTML;
+                copyYamlBtn.classList.remove('copied');
+            }, 2000);
+        });
 
         function createUnitCard() {
             unitCount++;

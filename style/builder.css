@@ -148,6 +148,7 @@ body.builder-body {
     margin-bottom: 0.25rem;
 }
 
+/* Inline styles for the new dynamic UI components */
 .DynamicSection {
     margin-top: 2rem;
     padding-top: 1.5rem;
@@ -254,4 +255,27 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .GeneratedYamlContainer textarea {
     background: #000 !important;
     cursor: not-allowed;
+}
+.CopyBtn {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.CopyBtn:hover {
+    background: rgba(56, 189, 248, 0.3);
+    color: #fff;
+}
+.CopyBtn.copied {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border-color: #10b981;
 }
