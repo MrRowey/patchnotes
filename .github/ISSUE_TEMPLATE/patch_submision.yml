@@ -1,46 +1,28 @@
-name: Patch Change Submission
+name: Patch Submission
 description: Submit balance changes for the next patch to auto-generate the site
-title: "[Patch] Balance Changes"
+title: "[Patch] Balance Changes: "
 labels: ["patch-submission"]
- 
 body:
   - type: input
     id: patch_version
     attributes:
       label: Patch Version
       description: Version number for this patch (e.g., 3835)
-      placeholder: "3835"
     validations:
       required: true
- 
+      
   - type: textarea
     id: patch_summary
     attributes:
       label: Patch Summary
       description: Short description of the overall patch goals
-      placeholder: |
-        This patch delivers focuses on balance and movement improvements...
     validations:
       required: true
- 
+      
   - type: textarea
-    id: units
+    id: unit_changes
     attributes:
-      label: Unit Changes (YAML)
-      description: Paste the unit changes in the strict YAML format below.
-      value: |
-        ```yaml
-        - unit_code: URL0306
-          change_type: nerf
-          unit_name: Deceiver
-          faction: Cybran
-          description: Reduce stealth field range to make fire beetles easier to counter.
-          changes:
-            - category: Intel
-              label: Radar Radius
-              old: 24
-              new: 20
-              change_type: Buff
-        ```
+      label: Unit Changes
+      description: Paste the unit changes in strict YAML format
     validations:
       required: true

@@ -7,7 +7,7 @@
     
     <!-- External Stylesheets -->
     <link rel="stylesheet" href="/style/critical.css?v=1724259600">
-    <link rel="stylesheet" href="/style/builder.css"> <!-- New dedicated styles -->
+    <link rel="stylesheet" href="/style/builder.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -55,25 +55,28 @@
         document.getElementById('patchForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // 1. Gather the data
+            // 1. Gather the data from the UI
             const version = document.getElementById('patchVersion').value.trim();
             const summary = document.getElementById('patchSummary').value.trim();
             const yaml = document.getElementById('yamlData').value.trim();
             
-            // 2. Format it into the EXACT markdown the Python script expects
-            const markdownBody = `### Patch Version\n${version}\n\n### Patch Summary\n${summary}\n\n### Unit Changes\n\`\`\`yaml\n${yaml}\n\`\`\``;
-            
-            // 3. Build the GitHub Pre-fill URL
             const repoOwner = "MrRowey";
             const repoName = "patchnotes";
-            const issueTitle = encodeURIComponent(`[Patch] Balance Changes: v${version}`);
             
-            // GitHub allows us to pass ?body= to pre-fill the issue text area
-            const encodedBody = encodeURIComponent(markdownBody);
+            // 2. Map the data directly to the IDs in your GitHub Issue Form
+            // This safely encodes all spaces, line breaks, and special characters!
+            const params = new URLSearchParams({
+                template: 'patch_submission.yml',
+                title: `[Patch] Balance Changes: v${version}`,
+                patch_version: version,         // Maps to the 'patch_version' input ID
+                patch_summary: summary,         // Maps to the 'patch_summary' textarea ID
+                unit_changes: yaml              // Maps to the 'unit_changes' textarea ID
+            });
             
-            const githubUrl = `https://github.com/${repoOwner}/${repoName}/issues/new?title=${issueTitle}&body=${encodedBody}&labels=patch-submission`;
+            // 3. Build the final GitHub URL
+            const githubUrl = `https://github.com/${repoOwner}/${repoName}/issues/new?${params.toString()}`;
             
-            // 4. Open GitHub in a new tab so the user can hit "Submit new issue"
+            // 4. Open GitHub in a new tab with everything perfectly pre-filled
             window.open(githubUrl, '_blank');
         });
     </script>
