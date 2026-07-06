@@ -8,33 +8,17 @@
     <!-- Load ONLY the dedicated builder styles to prevent critical.css from hiding the page -->
     <link rel="stylesheet" href="style/builder.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
 </head>
 <body class="builder-body">
     <main class="BuilderWrapper">
         <div class="FormContainer">
             <div class="FormHeader">
-                <h2><i class="fas fa-hammer"></i> Patch Note Builder</h2>
-                <p>Build your patch notes cleanly. Once generated, this will safely bounce you to GitHub to finalize the submission and trigger the site rebuild.</p>
+                <h2><i class="fas fa-hammer"></i> Unit YAML Builder</h2>
+                <p>Build your unit changes cleanly. Once generated, copy the YAML and paste it into the GitHub Issue form alongside your Patch Version and Summary.</p>
             </div>
 
             <form id="patchForm">
-                <div class="Grid2Col">
-                    <div class="FormGroup">
-                        <label for="patchVersion"><i class="fas fa-tag"></i> Patch Version</label>
-                        <input type="text" id="patchVersion" placeholder="e.g., 3835" required>
-                    </div>
-
-                    <div class="FormGroup">
-                        <label for="patchDate"><i class="fas fa-calendar-alt"></i> Patch Date</label>
-                        <input type="date" id="patchDate" required>
-                    </div>
-                </div>
-
-                <div class="FormGroup">
-                    <label for="patchSummary"><i class="fas fa-align-left"></i> Patch Summary</label>
-                    <textarea id="patchSummary" placeholder="Briefly describe the overall goals of this patch..." required></textarea>
-                </div>
-
                 <div class="DynamicSection">
                     <label style="color: #38bdf8; font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; display: block;">
                         <i class="fas fa-robot"></i> Unit Changes
@@ -63,14 +47,14 @@
                 </div>
 
                 <button type="submit" class="SubmitBtn" id="submitBtn">
-                    <i class="fab fa-github"></i> Generate & Open in GitHub
+                    <i class="fab fa-github"></i> Copy YAML & Open GitHub
                 </button>
             </form>
         </div>
     </main>
 
     <script>
-        // Data Dictionary for Dropdowns (Includes your newly added stats!)
+        // Data Dictionary for Dropdowns
         const CATEGORIES = {
             "Defence": ["Health/MaxHealth", "ShieldRegenAssistMult", "ShieldEnergyDrainRechargeTime", "ShieldMaxHealth", "ShieldRechargeTime", "ShieldRegenRate", "ShieldRegenStartTime", "ShieldSize", "ShieldSpillOverDamageMod", "RegenRate", "PowerDrain"],
             "Display": ["UniformScale"],
@@ -91,7 +75,6 @@
         const unitsContainer = document.getElementById('unitsContainer');
         const addUnitBtn = document.getElementById('addUnitBtn');
         const yamlOutput = document.getElementById('yamlData');
-        const patchDateInput = document.getElementById('patchDate');
         const copyYamlBtn = document.getElementById('copyYamlBtn');
 
         // Events
@@ -260,19 +243,15 @@
             yamlOutput.value = yamlString;
         }
 
-        // Initialize with one empty unit to start, and set date to today
+        // Initialize with one empty unit to start
         document.addEventListener('DOMContentLoaded', () => {
-            patchDateInput.valueAsDate = new Date();
             createUnitCard();
         });
 
-        // Submission Logic
+        // Submission Logic (Simplified to copy and open blank template)
         document.getElementById('patchForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const version = document.getElementById('patchVersion').value.trim();
-            const date = patchDateInput.value;
-            const summary = document.getElementById('patchSummary').value.trim();
             const yaml = yamlOutput.value.trim();
             
             if(!yaml) {
@@ -280,19 +259,24 @@
                 return;
             }
 
+            // Automatically copy to clipboard for convenience
+            yamlOutput.select();
+            document.execCommand('copy');
+            
+            // Visual feedback on the main button
+            const submitBtn = document.getElementById('submitBtn');
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Copied! Opening GitHub...';
+            
+            setTimeout(() => {
+                submitBtn.innerHTML = originalHTML;
+            }, 3000);
+
             const repoOwner = "MrRowey";
             const repoName = "patchnotes";
             
-            const params = new URLSearchParams({
-                template: 'patch_submission.yml',
-                title: `[Patch] Balance Changes: v${version}`,
-                patch_version: version,
-                patch_date: date,           // Passes the selected date mapping
-                patch_summary: summary,
-                unit_changes: yaml
-            });
-            
-            const githubUrl = `https://github.com/${repoOwner}/${repoName}/issues/new?${params.toString()}`;
+            // Open the GitHub Issue page with the correct template selected
+            const githubUrl = `https://github.com/${repoOwner}/${repoName}/issues/new?template=patch_submission.yml`;
             window.open(githubUrl, '_blank');
         });
     </script>
