@@ -45,8 +45,10 @@
                     <textarea id="yamlData" class="CodeEditor" readonly></textarea>
                 </div>
 
-                <button type="submit" class="SubmitBtn" id="submitBtn">
-                    <i class="fab fa-github"></i> Copy YAML & Open GitHub
+                <button type="submit" class="SubmitBtn" >
+                    <a href="https://github.com/MrRowey/patchnotes/issues/new?template=patch_submision.yml" target="_blank">
+                        <i class="fab fa-github"></i> Copy YAML & Open GitHub
+                    </a>
                 </button>
             </form>
         </div>
@@ -270,13 +272,6 @@
             setTimeout(() => {
                 submitBtn.innerHTML = originalHTML;
             }, 3000);
-
-            const repoOwner = "MrRowey";
-            const repoName = "patchnotes";
-            
-            // Open the GitHub Issue page with the correct template selected
-            const githubUrl = `https://github.com/MrRowey/patchnotes/issues/new?template=patch_submission.yml`;
-            window.open(githubUrl, '_blank');
         });
     </script>
 </body>
