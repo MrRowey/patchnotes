@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patch Builder - FAForever</title>
+    
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="/style/critical.css?v=1724259600">
+    <link rel="stylesheet" href="/style/builder.css"> <!-- New dedicated styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <main class="GridContainer">
+        <div class="FormContainer">
+            <div class="FormHeader">
+                <h2><i class="fas fa-hammer"></i> Patch Note Builder</h2>
+                <p>Use this form to structure your patch notes cleanly. Once generated, this will safely bounce you to GitHub to finalize the submission and trigger the site rebuild.</p>
+            </div>
+
+            <form id="patchForm">
+                <div class="FormGroup">
+                    <label for="patchVersion"><i class="fas fa-tag"></i> Patch Version</label>
+                    <input type="text" id="patchVersion" placeholder="e.g., 3835" required>
+                </div>
+
+                <div class="FormGroup">
+                    <label for="patchSummary"><i class="fas fa-align-left"></i> Patch Summary</label>
+                    <textarea id="patchSummary" placeholder="Briefly describe the overall goals of this patch..." required></textarea>
+                </div>
+
+                <div class="FormGroup">
+                    <label for="yamlData"><i class="fas fa-code"></i> Unit Changes (YAML)</label>
+                    <p class="YamlHelper">Paste or type your unit configurations here. Be sure to check your spacing!</p>
+                    <textarea id="yamlData" class="CodeEditor" spellcheck="false" required>- unit_code: URL0306
+  change_type: nerf
+  unit_name: Deceiver
+  faction: Cybran
+  description: Reduce stealth field range.
+  changes:
+    - category: Intel
+      label: Radar Radius
+      old: 24
+      new: 20</textarea>
+                </div>
+
+                <button type="submit" class="SubmitBtn" id="submitBtn">
+                    <i class="fab fa-github"></i> Generate & Open in GitHub
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('patchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // 1. Gather the data
+            const version = document.getElementById('patchVersion').value.trim();
+            const summary = document.getElementById('patchSummary').value.trim();
+            const yaml = document.getElementById('yamlData').value.trim();
+            
+            // 2. Format it into the EXACT markdown the Python script expects
+            const markdownBody = `### Patch Version\n${version}\n\n### Patch Summary\n${summary}\n\n### Unit Changes\n\`\`\`yaml\n${yaml}\n\`\`\``;
+            
+            // 3. Build the GitHub Pre-fill URL
+            const repoOwner = "MrRowey";
+            const repoName = "patchnotes";
+            const issueTitle = encodeURIComponent(`[Patch] Balance Changes: v${version}`);
+            
+            // GitHub allows us to pass ?body= to pre-fill the issue text area
+            const encodedBody = encodeURIComponent(markdownBody);
+            
+            const githubUrl = `https://github.com/${repoOwner}/${repoName}/issues/new?title=${issueTitle}&body=${encodedBody}&labels=patch-submission`;
+            
+            // 4. Open GitHub in a new tab so the user can hit "Submit new issue"
+            window.open(githubUrl, '_blank');
+        });
+    </script>
+</body>
+</html>

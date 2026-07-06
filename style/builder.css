@@ -1,0 +1,149 @@
+/* Fallback base styles in case critical.css doesn't fully cover this isolated page */
+body {
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.GridContainer {
+    padding: 0 2rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.FormContainer {
+    width: 100%;
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 2.5rem;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.FormHeader {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.FormHeader h2 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(to right, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.FormHeader p {
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 600px;
+    font-size: 1.05rem;
+}
+
+.FormGroup {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.FormGroup label {
+    font-weight: 600;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.025em;
+}
+
+.FormGroup input, .FormGroup textarea {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.FormGroup input:focus, .FormGroup textarea:focus {
+    outline: none;
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    background: rgba(15, 23, 42, 0.9);
+}
+
+.FormGroup textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.CodeEditor {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5;
+    min-height: 350px !important;
+    background: #0f172a !important;
+    color: #10b981 !important; /* Code green */
+}
+
+/* Custom Scrollbar for Code Editor */
+.CodeEditor::-webkit-scrollbar {
+    width: 8px;
+}
+.CodeEditor::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 0 8px 8px 0;
+}
+.CodeEditor::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+.CodeEditor::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+.SubmitBtn {
+    background: linear-gradient(to right, #38bdf8, #818cf8);
+    color: #0f172a;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.SubmitBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(56, 189, 248, 0.6);
+    color: #000;
+}
+
+.YamlHelper {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: -0.25rem;
+    margin-bottom: 0.25rem;
+}
