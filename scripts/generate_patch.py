@@ -259,7 +259,7 @@ def build_sections(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
         section["items"].append(
             {
                 "id": unit_code or slugify(unit.get("unit_name", "unit")),
-                "icon_url": f"/assets/images/units/{faction_slug}/{unit_code}_icon.png",
+                "icon_url": f"/images/units/{faction_slug}/{slugify(unit.get('category') or 'units')}/{unit_code}.png",
                 "name": unit.get("unit_name", ""),
                 "change_type": unit_change_type,
                 "faction": faction,
