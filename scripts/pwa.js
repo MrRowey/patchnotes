@@ -15,7 +15,7 @@ class PWAManager {
     // Register service worker
     this.registerServiceWorker();
     
-    // Setup install prompt
+    // Setup install prompt via Footer button
     this.setupInstallPrompt();
     
     // Listen for app updates
@@ -65,12 +65,26 @@ class PWAManager {
   }
 
   setupInstallPrompt() {
-    // Listen for install prompt
+    const installBtn = document.getElementById('pwa-install-btn');
+
+    // Setup the click listener for the footer button
+    if (installBtn) {
+      installBtn.addEventListener('click', () => {
+        this.triggerInstall();
+      });
+    }
+
+    // Listen for the browser's install prompt event
     window.addEventListener('beforeinstallprompt', (e) => {
       this.logger.info?.('Install prompt available');
+      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       this.deferredPrompt = e;
-      this.showInstallPrompt();
+      
+      // Reveal the button in the footer instead of a popup
+      if (installBtn && !this.isInstalled) {
+        installBtn.style.display = 'flex';
+      }
     });
 
     // Listen for successful install
@@ -79,40 +93,6 @@ class PWAManager {
       this.isInstalled = true;
       this.hideInstallPrompt();
       this.showInstallSuccess();
-    });
-  }
-
-  showInstallPrompt() {
-    if (this.isInstalled) return;
-
-    // Add body class to adjust layout
-    document.body.classList.add('pwa-banner-active');
-
-    // Create install banner
-    const installBanner = document.createElement('div');
-    installBanner.id = 'pwa-install-banner';
-    installBanner.innerHTML = `
-      <div class="pwa-banner-content">
-        <div class="pwa-banner-text">
-          <strong>Install FAForever Patchnotes</strong>
-          <p>Get quick access and offline viewing</p>
-        </div>
-        <div class="pwa-banner-actions">
-          <button id="pwa-install-btn" class="pwa-btn pwa-btn-primary">Install</button>
-          <button id="pwa-dismiss-btn" class="pwa-btn pwa-btn-secondary">×</button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(installBanner);
-    
-    // Add event listeners
-    document.getElementById('pwa-install-btn').addEventListener('click', () => {
-      this.triggerInstall();
-    });
-    
-    document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
-      this.hideInstallPrompt();
     });
   }
 
@@ -125,10 +105,10 @@ class PWAManager {
       
       if (result.outcome === 'accepted') {
         console.log('PWA: User accepted install');
+        this.hideInstallPrompt();
       }
       
       this.deferredPrompt = null;
-      this.hideInstallPrompt();
       
     } catch (error) {
       console.error('PWA: Install failed', error);
@@ -136,24 +116,15 @@ class PWAManager {
   }
 
   hideInstallPrompt() {
-    const banner = document.getElementById('pwa-install-banner');
-    if (banner) {
-      // Add exit animation
-      banner.classList.add('pwa-banner-exiting');
-      
-      // Remove banner and body class after animation
-      setTimeout(() => {
-        banner.remove();
-        document.body.classList.remove('pwa-banner-active');
-      }, 300);
+    const installBtn = document.getElementById('pwa-install-btn');
+    if (installBtn) {
+      // Hide the button from the footer
+      installBtn.style.display = 'none';
     }
   }
 
   showInstallSuccess() {
-    // Remove any existing banners first
-    this.hideInstallPrompt();
-    
-    // Show temporary success message
+    // Show temporary success message toast
     const successMsg = document.createElement('div');
     successMsg.id = 'pwa-success-banner';
     successMsg.innerHTML = `
