@@ -148,6 +148,7 @@ body.builder-body {
     margin-bottom: 0.25rem;
 }
 
+       /* Inline styles for the new dynamic UI components */
         .DynamicSection {
             margin-top: 1rem;
             padding-top: 0.5rem;
